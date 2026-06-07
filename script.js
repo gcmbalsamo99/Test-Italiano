@@ -1,10 +1,9 @@
 // Domande del test di italiano - Livello Base
 const questions = [
     {
-        type: 'multipleChoice',
-        text: 'Completa la frase: "Ciao, mi chiamo _______"',
-        options: ['Marco', 'Maria', 'Giulia', 'Luca'],
-        correctAnswer: 0,
+        type: 'openText',
+        text: 'Domanda 1 - Risposta aperta: Descrivi in 2-3 frasi perché ami l\'Italia.',
+        placeholder: 'Scrivi la tua risposta...',
         difficultWords: []
     },
     {
@@ -20,32 +19,23 @@ const questions = [
         difficultWords: ['bandiera']
     },
     {
-        type: 'translation',
-        text: 'Leggi il testo e clicca su ogni parola evidenziata per scoprire la traduzione in tedesco:',
-        textContent: 'Mi piace molto visitare l\'Italia. La <span class="highlight-word" data-word="bandiera">bandiera</span> italiana è bellissima! Quando vado a Roma, visito il <span class="highlight-word" data-word="Colosseo">Colosseo</span> e mangio una deliziosa <span class="highlight-word" data-word="pizza">pizza</span> con gli <span class="highlight-word" data-word="amici">amici</span>.',
-        pairs: [
-            { word: 'bandiera', german: 'Flagge' },
-            { word: 'Colosseo', german: 'Kolosseum' },
-            { word: 'pizza', german: 'Pizza' },
-            { word: 'amici', german: 'Freunde' }
+        type: 'fillBlanks',
+        text: 'Completa il testo con le parole giuste:',
+        textContent: 'Mi piace molto visitare l\'Italia. La <span class="highlight-word" data-blank="0">bandiera</span> italiana è bellissima! Quando vado a Roma, visito il <span class="highlight-word" data-blank="1">Colosseo</span>. In Italia mangio molta <span class="highlight-word" data-blank="2">pizza</span> con i miei <span class="highlight-word" data-blank="3">amici</span>.',
+        blanks: [
+            { index: 0, options: ['bandiera', 'bandire', 'banca'], correct: 0 },
+            { index: 1, options: ['Colosseo', 'Castello', 'Colle'], correct: 0 },
+            { index: 2, options: ['pasta', 'pizza', 'piazza'], correct: 1 },
+            { index: 3, options: ['amore', 'amici', 'ammici'], correct: 1 }
         ],
         difficultWords: []
     },
     {
-        type: 'dialog',
-        text: 'Completa il dialogo tra Anna e Marco:',
-        dialog: [
-            { speaker: 'Anna', text: 'Ciao Marco! Come stai?' },
-            { speaker: 'Marco', text: '_______ bene, grazie! E tu?', blank: true, options: ['Sto', 'Sono', 'Vado', 'Esco'] },
-            { speaker: 'Anna', text: 'Anch\'io bene! Hai _______?' },
-            { speaker: 'Marco', text: 'Sì, ho fame! Vuoi un caffè?', blank: false },
-            { speaker: 'Anna', text: '_______ ! Mi piacerebbe molto!', blank: true, options: ['Sì', 'No', 'Forse', 'Mai'] },
-            { speaker: 'Marco', text: 'Perfetto! Andiamo al bar.', blank: false }
-        ],
-        blanks: [
-            { index: 1, correctAnswer: 0, question: 'Primo dialogo - Risposta Marco' },
-            { index: 4, correctAnswer: 0, question: 'Secondo dialogo - Risposta Anna' }
-        ]
+        type: 'binaryChoice',
+        text: 'Haiyang è una ragazza dolce ma anche:',
+        options: ['Stupida', 'Intelligente'],
+        correctAnswer: 1,
+        difficultWords: []
     },
     {
         type: 'multipleChoice',
@@ -60,6 +50,41 @@ const questions = [
         difficultWords: []
     },
     {
+        type: 'matching',
+        text: 'Collega le parole in tedesco con le loro traduzioni italiane:',
+        pairs: [
+            { german: 'Flagge', italian: 'bandiera' },
+            { german: 'Haus', italian: 'casa' },
+            { german: 'Liebe', italian: 'amore' },
+            { german: 'Kolosseum', italian: 'Colosseo' },
+            { german: 'Pizza', italian: 'pizza' }
+        ],
+        difficultWords: []
+    },
+    {
+        type: 'comprehension',
+        text: 'Leggi il testo e rispondi alle domande:',
+        textContent: 'Roma è la capitale d\'Italia ed è una città molto bella e antica. I turisti visitano Roma ogni anno per vedere il Colosseo, il Vaticano e la Fontana di Trevi. La gente italiana è molto amichevole e ama condividere il cibo con la famiglia e gli amici.',
+        questions: [
+            {
+                question: 'Qual è la capitale d\'Italia?',
+                options: ['Venezia', 'Roma', 'Milano', 'Firenze'],
+                correctAnswer: 1
+            },
+            {
+                question: 'Quali monumenti visitano i turisti a Roma?',
+                options: [
+                    'Il Big Ben e il Ponte di Londra',
+                    'La Torre Eiffel',
+                    'Il Colosseo e la Fontana di Trevi',
+                    'Il Duomo di Milano'
+                ],
+                correctAnswer: 2
+            }
+        ],
+        difficultWords: []
+    },
+    {
         type: 'multipleChoice',
         text: 'Quali sono i numeri da 1 a 3 in italiano?',
         options: [
@@ -69,25 +94,6 @@ const questions = [
             'Uno, duos, tre'
         ],
         correctAnswer: 1,
-        difficultWords: []
-    },
-    {
-        type: 'multipleChoice',
-        text: 'Come si dice "Ti amo" in italiano?',
-        options: [
-            'Amo tu',
-            'Ti amo',
-            'Amo te',
-            'Te amo'
-        ],
-        correctAnswer: 1,
-        difficultWords: []
-    },
-    {
-        type: 'completion',
-        text: 'Completa: "Ti piace ___________?" (la città con il Colosseo)',
-        options: ['Roma', 'Milano', 'Venezia'],
-        correctAnswer: 0,
         difficultWords: []
     }
 ];
@@ -129,14 +135,18 @@ function displayQuestion() {
     questionText.textContent = question.text;
     questionDiv.appendChild(questionText);
 
-    if (question.type === 'completion') {
-        renderCompletion(questionDiv, question);
+    if (question.type === 'openText') {
+        renderOpenText(questionDiv, question);
     } else if (question.type === 'multipleChoice') {
         renderMultipleChoice(questionDiv, question);
-    } else if (question.type === 'translation') {
-        renderTranslationWithHighlight(questionDiv, question);
-    } else if (question.type === 'dialog') {
-        renderDialog(questionDiv, question);
+    } else if (question.type === 'fillBlanks') {
+        renderFillBlanks(questionDiv, question);
+    } else if (question.type === 'binaryChoice') {
+        renderBinaryChoice(questionDiv, question);
+    } else if (question.type === 'matching') {
+        renderMatching(questionDiv, question);
+    } else if (question.type === 'comprehension') {
+        renderComprehension(questionDiv, question);
     }
 
     if (question.difficultWords && question.difficultWords.length > 0) {
@@ -147,18 +157,19 @@ function displayQuestion() {
     updateButtons();
 }
 
-function renderCompletion(container, question) {
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.className = 'completion-input';
-    input.placeholder = 'Scrivi la tua risposta...';
-    input.value = answers[currentQuestion] !== null ? answers[currentQuestion] : '';
+function renderOpenText(container, question) {
+    const textarea = document.createElement('textarea');
+    textarea.className = 'completion-input';
+    textarea.placeholder = question.placeholder;
+    textarea.style.minHeight = '120px';
+    textarea.style.resize = 'vertical';
+    textarea.value = answers[currentQuestion] !== null ? answers[currentQuestion] : '';
 
-    input.addEventListener('input', (e) => {
+    textarea.addEventListener('input', (e) => {
         answers[currentQuestion] = e.target.value;
     });
 
-    container.appendChild(input);
+    container.appendChild(textarea);
 }
 
 function renderMultipleChoice(container, question) {
@@ -188,130 +199,193 @@ function renderMultipleChoice(container, question) {
     container.appendChild(optionsDiv);
 }
 
-function renderTranslationWithHighlight(container, question) {
+function renderFillBlanks(container, question) {
     const textDiv = document.createElement('div');
     textDiv.className = 'highlighted-text';
     textDiv.innerHTML = question.textContent;
     container.appendChild(textDiv);
 
-    const highlightedWords = textDiv.querySelectorAll('.highlight-word');
-    highlightedWords.forEach(word => {
-        word.addEventListener('click', function(e) {
-            e.preventDefault();
-            const wordText = this.getAttribute('data-word');
-            showTranslationPopup(this, wordText, question.pairs);
-        });
-    });
+    if (!answers[currentQuestion]) {
+        answers[currentQuestion] = {};
+    }
 
     const section = document.createElement('div');
     section.className = 'translation-section';
+    section.style.marginTop = '20px';
 
     const title = document.createElement('p');
     title.className = 'translation-title';
-    title.textContent = '🇩🇪 Clicca sulle parole blu per le traduzioni';
+    title.textContent = 'Scegli le parole giuste per gli spazi:';
     section.appendChild(title);
 
-    question.pairs.forEach((pair) => {
+    question.blanks.forEach((blank) => {
         const item = document.createElement('div');
         item.className = 'translation-item';
 
-        const german = document.createElement('span');
-        german.className = 'italian-word';
-        german.textContent = pair.word;
-        german.style.cursor = 'pointer';
+        const label = document.createElement('span');
+        label.className = 'italian-word';
+        label.textContent = `Spazio ${blank.index + 1}:`;
 
-        const btn = document.createElement('button');
-        btn.className = 'translate-btn';
-        btn.textContent = '🔍 Traduci';
+        const select = document.createElement('select');
+        select.className = 'dialog-select';
+        select.value = answers[currentQuestion][blank.index] !== undefined ? answers[currentQuestion][blank.index] : '';
 
-        const translation = document.createElement('span');
-        translation.className = 'german-translation';
-        translation.textContent = pair.german;
+        const emptyOption = document.createElement('option');
+        emptyOption.value = '';
+        emptyOption.textContent = 'Scegli...';
+        select.appendChild(emptyOption);
 
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            translation.classList.toggle('show');
-            btn.textContent = translation.classList.contains('show') ? '😪 Nascondi' : '🔍 Traduci';
+        blank.options.forEach((opt, optIndex) => {
+            const option = document.createElement('option');
+            option.value = optIndex;
+            option.textContent = opt;
+            select.appendChild(option);
         });
 
-        item.appendChild(german);
-        item.appendChild(btn);
-        item.appendChild(translation);
+        select.addEventListener('change', (e) => {
+            answers[currentQuestion][blank.index] = parseInt(e.target.value);
+        });
+
+        item.appendChild(label);
+        item.appendChild(select);
         section.appendChild(item);
     });
 
     container.appendChild(section);
 }
 
-function showTranslationPopup(element, word, pairs) {
-    const pair = pairs.find(p => p.word.toLowerCase() === word.toLowerCase());
-    if (pair) {
-        const popup = document.createElement('div');
-        popup.className = 'popup-translation';
-        popup.innerHTML = `<strong>${pair.word}</strong><br/><span style="font-style: italic; color: white;">${pair.german}</span>`;
-        element.parentNode.insertBefore(popup, element.nextSibling);
-        setTimeout(() => popup.remove(), 2000);
-    }
+function renderBinaryChoice(container, question) {
+    const optionsDiv = document.createElement('div');
+    optionsDiv.className = 'options';
+
+    question.options.forEach((option, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = option;
+
+        if (answers[currentQuestion] === index) {
+            btn.classList.add('selected');
+        }
+
+        btn.addEventListener('click', (e) => {
+            optionsDiv.querySelectorAll('.option-btn').forEach(b => {
+                b.classList.remove('selected');
+            });
+            btn.classList.add('selected');
+            answers[currentQuestion] = index;
+        });
+
+        optionsDiv.appendChild(btn);
+    });
+
+    container.appendChild(optionsDiv);
 }
 
-function renderDialog(container, question) {
-    const dialogDiv = document.createElement('div');
-    dialogDiv.className = 'dialog-container';
+function renderMatching(container, question) {
+    if (!answers[currentQuestion]) {
+        answers[currentQuestion] = {};
+    }
+
+    const matchingDiv = document.createElement('div');
+    matchingDiv.className = 'matching-container';
+
+    const leftCol = document.createElement('div');
+    leftCol.className = 'matching-column left';
+
+    const rightCol = document.createElement('div');
+    rightCol.className = 'matching-column right';
+
+    const title1 = document.createElement('div');
+    title1.className = 'matching-title';
+    title1.textContent = '🇩🇪 Tedesco';
+    leftCol.appendChild(title1);
+
+    const title2 = document.createElement('div');
+    title2.className = 'matching-title';
+    title2.textContent = '🇮🇹 Italiano';
+    rightCol.appendChild(title2);
+
+    // Shuffle Italian options
+    const shuffledItalian = [...question.pairs].sort(() => Math.random() - 0.5);
+
+    question.pairs.forEach((pair, index) => {
+        const germantItem = document.createElement('div');
+        germantItem.className = 'matching-item german-item';
+        germantItem.textContent = pair.german;
+        germantItem.setAttribute('data-german-index', index);
+        leftCol.appendChild(germantItem);
+    });
+
+    shuffledItalian.forEach((pair, index) => {
+        const italianItem = document.createElement('div');
+        italianItem.className = 'matching-item italian-item';
+        italianItem.textContent = pair.italian;
+        italianItem.setAttribute('data-italian-index', index);
+        italianItem.setAttribute('data-correct-german', question.pairs.findIndex(p => p.italian === pair.italian));
+        italianItem.addEventListener('click', (e) => {
+            document.querySelectorAll('.italian-item.connected').forEach(el => {
+                el.classList.remove('connected');
+            });
+            italianItem.classList.add('connected');
+            answers[currentQuestion][italianItem.getAttribute('data-correct-german')] = index;
+        });
+        rightCol.appendChild(italianItem);
+    });
+
+    matchingDiv.appendChild(leftCol);
+    matchingDiv.appendChild(rightCol);
+    container.appendChild(matchingDiv);
+}
+
+function renderComprehension(container, question) {
+    const textDiv = document.createElement('div');
+    textDiv.className = 'comprehension-text';
+    textDiv.innerHTML = `<p>${question.textContent}</p>`;
+    container.appendChild(textDiv);
+
+    const questionsDiv = document.createElement('div');
+    questionsDiv.className = 'comprehension-questions';
 
     if (!answers[currentQuestion]) {
         answers[currentQuestion] = {};
     }
 
-    question.dialog.forEach((line, index) => {
-        const lineDiv = document.createElement('div');
-        lineDiv.className = 'dialog-line';
-        lineDiv.setAttribute('data-speaker', line.speaker);
+    question.questions.forEach((q, index) => {
+        const qDiv = document.createElement('div');
+        qDiv.className = 'comprehension-question';
 
-        const speakerSpan = document.createElement('span');
-        speakerSpan.className = 'dialog-speaker';
-        speakerSpan.textContent = line.speaker + ':';
-        lineDiv.appendChild(speakerSpan);
+        const qTitle = document.createElement('h4');
+        qTitle.textContent = `Domanda ${index + 1}: ${q.question}`;
+        qDiv.appendChild(qTitle);
 
-        if (line.blank) {
-            const blankInfo = question.blanks.find(b => b.index === index);
-            if (blankInfo) {
-                const inputDiv = document.createElement('div');
-                inputDiv.className = 'dialog-input-group';
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'options';
 
-                const select = document.createElement('select');
-                select.className = 'dialog-select';
-                select.value = answers[currentQuestion][index] !== undefined ? answers[currentQuestion][index] : '';
+        q.options.forEach((option, optIndex) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = option;
 
-                const emptyOption = document.createElement('option');
-                emptyOption.value = '';
-                emptyOption.textContent = 'Scegli...';
-                select.appendChild(emptyOption);
-
-                blankInfo.options.forEach((opt, optIndex) => {
-                    const option = document.createElement('option');
-                    option.value = optIndex;
-                    option.textContent = opt;
-                    select.appendChild(option);
-                });
-
-                select.addEventListener('change', (e) => {
-                    answers[currentQuestion][index] = parseInt(e.target.value);
-                });
-
-                inputDiv.appendChild(select);
-                lineDiv.appendChild(inputDiv);
+            if (answers[currentQuestion][index] === optIndex) {
+                btn.classList.add('selected');
             }
-        } else {
-            const textSpan = document.createElement('span');
-            textSpan.className = 'dialog-text';
-            textSpan.textContent = line.text;
-            lineDiv.appendChild(textSpan);
-        }
 
-        dialogDiv.appendChild(lineDiv);
+            btn.addEventListener('click', () => {
+                optionsDiv.querySelectorAll('.option-btn').forEach(b => {
+                    b.classList.remove('selected');
+                });
+                btn.classList.add('selected');
+                answers[currentQuestion][index] = optIndex;
+            });
+
+            optionsDiv.appendChild(btn);
+        });
+
+        qDiv.appendChild(optionsDiv);
+        questionsDiv.appendChild(qDiv);
     });
 
-    container.appendChild(dialogDiv);
+    container.appendChild(questionsDiv);
 }
 
 function renderDifficultWords(container, words) {
@@ -366,7 +440,12 @@ function getGermanTranslation(word) {
         'amico': 'Freund',
         'acqua': 'Wasser',
         'tempo': 'Zeit',
-        'colosseo': 'Kolosseum'
+        'colosseo': 'Kolosseum',
+        'roma': 'Rom',
+        'vaticano': 'Vatikan',
+        'fontana': 'Brunnen',
+        'turista': 'Tourist',
+        'amichevole': 'Freundlich'
     };
 
     return translations[word.toLowerCase()] || '❓ Non trovata';
@@ -409,20 +488,34 @@ function previousQuestion() {
 function showResults() {
     let score = 0;
     questions.forEach((question, index) => {
-        if (question.type === 'completion' || question.type === 'multipleChoice') {
+        if (question.type === 'multipleChoice' || question.type === 'binaryChoice') {
             if (answers[index] === question.correctAnswer) {
                 score++;
             }
-        } else if (question.type === 'dialog') {
-            if (typeof answers[index] === 'object' && Object.keys(answers[index]).length > 0) {
-                let dialogCorrect = true;
-                question.blanks.forEach(blank => {
-                    if (answers[index][blank.index] !== blank.correctAnswer) {
-                        dialogCorrect = false;
-                    }
-                });
-                if (dialogCorrect) score++;
-            }
+        } else if (question.type === 'fillBlanks') {
+            let allCorrect = true;
+            question.blanks.forEach(blank => {
+                if (answers[index][blank.index] !== blank.correct) {
+                    allCorrect = false;
+                }
+            });
+            if (allCorrect) score++;
+        } else if (question.type === 'matching') {
+            let allCorrect = true;
+            question.pairs.forEach((pair, pairIndex) => {
+                if (answers[index][pairIndex] !== pairIndex) {
+                    allCorrect = false;
+                }
+            });
+            if (allCorrect) score++;
+        } else if (question.type === 'comprehension') {
+            let allCorrect = true;
+            question.questions.forEach((q, qIndex) => {
+                if (answers[index][qIndex] !== q.correctAnswer) {
+                    allCorrect = false;
+                }
+            });
+            if (allCorrect) score++;
         }
     });
 
