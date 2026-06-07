@@ -86,11 +86,6 @@ header::before {
     to { transform: rotate(360deg); }
 }
 
-.header-content {
-    position: relative;
-    z-index: 1;
-}
-
 header h1 {
     font-size: 3em;
     margin-bottom: 15px;
@@ -110,30 +105,13 @@ header .subtitle {
     margin-bottom: 15px;
 }
 
-.emoji-dance {
-    font-size: 2em;
-    letter-spacing: 15px;
-    animation: dance 1s ease-in-out infinite;
-}
-
-@keyframes dance {
-    0%, 100% { transform: rotateZ(0deg) scale(1); }
-    25% { transform: rotateZ(-5deg) scale(1.05); }
-    75% { transform: rotateZ(5deg) scale(1.05); }
-}
-
-.progress-container {
-    padding: 20px 30px;
-    background: linear-gradient(90deg, #f0f0f0 0%, #ffffff 100%);
-}
-
 .progress-bar {
     height: 12px;
     background: #e0e0e0;
     border-radius: 10px;
     overflow: hidden;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 10px;
+    margin: 20px 30px 10px;
 }
 
 .progress-fill {
@@ -145,14 +123,7 @@ header .subtitle {
     box-shadow: 0 0 10px rgba(255, 107, 157, 0.5);
 }
 
-.progress-text {
-    text-align: right;
-    font-size: 0.9em;
-    color: var(--secondary);
-    font-weight: bold;
-}
-
-.quiz-container {
+#quiz-container {
     padding: 40px 30px;
     min-height: 350px;
 }
@@ -269,6 +240,140 @@ header .subtitle {
     margin-left: 10px;
 }
 
+/* TESTO EVIDENZIATO */
+.highlighted-text {
+    background: linear-gradient(135deg, #f0f7ff 0%, #fff0f5 100%);
+    padding: 25px;
+    border-radius: 12px;
+    border-left: 5px solid var(--accent);
+    line-height: 1.8;
+    font-size: 1.05em;
+    margin-bottom: 20px;
+}
+
+.highlight-word {
+    background: linear-gradient(120deg, rgba(255, 165, 2, 0.2), rgba(255, 107, 157, 0.2));
+    color: var(--secondary);
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 2px dotted var(--primary);
+}
+
+.highlight-word:hover {
+    background: linear-gradient(120deg, rgba(255, 165, 2, 0.4), rgba(255, 107, 157, 0.4));
+    transform: scale(1.05);
+}
+
+.popup-translation {
+    background: var(--primary);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.9em;
+    margin-top: 8px;
+    animation: popupAppear 0.3s ease;
+    display: inline-block;
+}
+
+@keyframes popupAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* DIALOGO */
+.dialog-container {
+    background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);
+    padding: 25px;
+    border-radius: 12px;
+    border: 2px solid var(--light);
+    margin-top: 15px;
+}
+
+.dialog-line {
+    display: flex;
+    margin-bottom: 18px;
+    align-items: flex-start;
+    animation: slideInLeft 0.4s ease;
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.dialog-line[data-speaker="Anna"] {
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.dialog-speaker {
+    font-weight: bold;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.95em;
+    white-space: nowrap;
+    margin: 0 10px;
+    min-width: 60px;
+    text-align: center;
+}
+
+.dialog-line[data-speaker="Marco"] .dialog-speaker {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: white;
+}
+
+.dialog-line[data-speaker="Anna"] .dialog-speaker {
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+}
+
+.dialog-text {
+    background: #f5f5f5;
+    padding: 12px 16px;
+    border-radius: 12px;
+    flex: 1;
+    font-size: 1em;
+}
+
+.dialog-input-group {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.dialog-select {
+    background: white;
+    border: 3px solid var(--primary);
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-family: 'Comic Sans MS', cursive;
+    font-size: 1em;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.dialog-select:focus {
+    outline: none;
+    box-shadow: 0 0 15px rgba(255, 107, 157, 0.3);
+    border-color: var(--secondary);
+}
+
 /* SEZIONE TRADUZIONI */
 .translation-section {
     background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
@@ -346,7 +451,7 @@ header .subtitle {
     transform: translateX(0);
 }
 
-/* PULSANTI PRINCIPALE */
+/* PULSANTI */
 .button-group {
     display: flex;
     justify-content: space-between;
@@ -381,10 +486,6 @@ header .subtitle {
     box-shadow: 0 10px 30px rgba(255, 107, 157, 0.5);
 }
 
-.btn-primary:active {
-    transform: translateY(-1px);
-}
-
 .btn-secondary {
     background: white;
     color: var(--primary);
@@ -398,8 +499,8 @@ header .subtitle {
     transform: scale(1.05);
 }
 
-/* MODALE RISULTATI */
-.results-modal {
+/* RISULTATI */
+#results-modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -413,17 +514,13 @@ header .subtitle {
     animation: fadeIn 0.3s ease;
 }
 
-.results-modal.hidden {
+#results-modal.hidden {
     display: none;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .results-content {
@@ -447,35 +544,19 @@ header .subtitle {
     }
 }
 
-.results-header {
-    font-size: 2.5em;
-    color: var(--primary);
-    margin-bottom: 30px;
-    animation: bounce 0.6s ease;
-}
-
-.result-details {
+#resultDetails {
     font-size: 1.2em;
     color: var(--text);
     margin: 30px 0;
     line-height: 1.8;
 }
 
-.result-details p {
+#resultDetails p {
     margin-bottom: 15px;
-}
-
-.result-details strong {
-    color: var(--secondary);
-    font-size: 1.3em;
 }
 
 /* RESPONSIVE */
 @media (max-width: 700px) {
-    body {
-        padding: 10px;
-    }
-
     header h1 {
         font-size: 2em;
     }
@@ -484,22 +565,12 @@ header .subtitle {
         font-size: 1em;
     }
 
-    .emoji-dance {
-        font-size: 1.5em;
-        letter-spacing: 8px;
-    }
-
-    .quiz-container {
+    #quiz-container {
         padding: 25px 15px;
     }
 
     .question h3 {
         font-size: 1.2em;
-    }
-
-    .option-btn {
-        padding: 14px 15px;
-        font-size: 1em;
     }
 
     .button-group {
@@ -512,9 +583,16 @@ header .subtitle {
         padding: 12px 20px;
     }
 
-    .results-content {
-        padding: 30px 20px;
-        margin: 20px;
+    .dialog-line {
+        flex-direction: column;
+    }
+
+    .dialog-line[data-speaker="Anna"] {
+        flex-direction: column;
+    }
+
+    .dialog-speaker {
+        margin-bottom: 8px;
     }
 }
 
