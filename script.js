@@ -2,8 +2,8 @@
 const questions = [
     {
         type: 'openText',
-        text: 'Domanda 1 - Risposta aperta: Descrivi in 2-3 frasi perché ami l\'Italia.',
-        placeholder: 'Scrivi la tua risposta...',
+        text: 'Domanda 1 - Come ti chiami?',
+        placeholder: 'Scrivi il tuo nome...',
         difficultWords: []
     },
     {
@@ -21,7 +21,7 @@ const questions = [
     {
         type: 'fillBlanks',
         text: 'Completa il testo con le parole giuste:',
-        textContent: 'Mi piace molto visitare l\'Italia. La <span class="highlight-word" data-blank="0">bandiera</span> italiana è bellissima! Quando vado a Roma, visito il <span class="highlight-word" data-blank="1">Colosseo</span>. In Italia mangio molta <span class="highlight-word" data-blank="2">pizza</span> con i miei <span class="highlight-word" data-blank="3">amici</span>.',
+        textContent: 'Mi piace molto visitare l\'Italia. La <span class="highlight-word" data-blank="0">_______</span> italiana è bellissima! Quando vado a Roma, visito il <span class="highlight-word" data-blank="1">_______</span>. In Italia mangio molta <span class="highlight-word" data-blank="2">_______</span> con i miei <span class="highlight-word" data-blank="3">_______</span>.',
         blanks: [
             { index: 0, options: ['bandiera', 'bandire', 'banca'], correct: 0 },
             { index: 1, options: ['Colosseo', 'Castello', 'Colle'], correct: 0 },
@@ -53,11 +53,11 @@ const questions = [
         type: 'matching',
         text: 'Collega le parole in tedesco con le loro traduzioni italiane:',
         pairs: [
-            { german: 'Flagge', italian: 'bandiera' },
-            { german: 'Haus', italian: 'casa' },
-            { german: 'Liebe', italian: 'amore' },
-            { german: 'Kolosseum', italian: 'Colosseo' },
-            { german: 'Pizza', italian: 'pizza' }
+            { id: 0, german: 'Flagge', italian: 'bandiera' },
+            { id: 1, german: 'Haus', italian: 'casa' },
+            { id: 2, german: 'Liebe', italian: 'amore' },
+            { id: 3, german: 'Kolosseum', italian: 'Colosseo' },
+            { id: 4, german: 'Pizza', italian: 'pizza' }
         ],
         difficultWords: []
     },
@@ -308,27 +308,52 @@ function renderMatching(container, question) {
     // Shuffle Italian options
     const shuffledItalian = [...question.pairs].sort(() => Math.random() - 0.5);
 
+    // Create German items
     question.pairs.forEach((pair, index) => {
-        const germantItem = document.createElement('div');
-        germantItem.className = 'matching-item german-item';
-        germantItem.textContent = pair.german;
-        germantItem.setAttribute('data-german-index', index);
-        leftCol.appendChild(germantItem);
+        const germanItem = document.createElement('div');
+        germanItem.className = 'matching-item german-item';
+        germanItem.textContent = pair.german;
+        germanItem.setAttribute('data-id', pair.id);
+        germanItem.setAttribute('data-index', index);
+        leftCol.appendChild(germanItem);
     });
 
-    shuffledItalian.forEach((pair, index) => {
+    // Create Italian items
+    shuffledItalian.forEach((pair, shuffledIndex) => {
         const italianItem = document.createElement('div');
         italianItem.className = 'matching-item italian-item';
         italianItem.textContent = pair.italian;
-        italianItem.setAttribute('data-italian-index', index);
-        italianItem.setAttribute('data-correct-german', question.pairs.findIndex(p => p.italian === pair.italian));
+        italianItem.setAttribute('data-id', pair.id);
+        italianItem.setAttribute('data-original-id', pair.id);
+        
         italianItem.addEventListener('click', (e) => {
-            document.querySelectorAll('.italian-item.connected').forEach(el => {
+            // Remove previous selection from this italian item
+            document.querySelectorAll(`.italian-item[data-original-id="${pair.id}"]`).forEach(el => {
                 el.classList.remove('connected');
             });
+            
+            // Remove previous selection from german items paired with this
+            document.querySelectorAll('.german-item.connected').forEach(el => {
+                if (answers[currentQuestion][el.getAttribute('data-id')] === pair.id) {
+                    el.classList.remove('connected');
+                }
+            });
+            
             italianItem.classList.add('connected');
-            answers[currentQuestion][italianItem.getAttribute('data-correct-german')] = index;
+            
+            // Store the connection
+            answers[currentQuestion][pair.id] = pair.id;
+            
+            // Update visual connection
+            document.querySelectorAll('.german-item').forEach(gItem => {
+                if (answers[currentQuestion][gItem.getAttribute('data-id')] === pair.id) {
+                    gItem.classList.add('connected');
+                } else {
+                    gItem.classList.remove('connected');
+                }
+            });
         });
+        
         rightCol.appendChild(italianItem);
     });
 
@@ -502,8 +527,8 @@ function showResults() {
             if (allCorrect) score++;
         } else if (question.type === 'matching') {
             let allCorrect = true;
-            question.pairs.forEach((pair, pairIndex) => {
-                if (answers[index][pairIndex] !== pairIndex) {
+            question.pairs.forEach((pair) => {
+                if (answers[index][pair.id] !== pair.id) {
                     allCorrect = false;
                 }
             });
