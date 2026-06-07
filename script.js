@@ -3,9 +3,9 @@ const questions = [
     {
         type: 'completion',
         text: 'Completa la frase: "Ciao, mi chiamo _______"',
-        answer: ['Marco', 'Maria', 'Giulia', 'Luca'],
+        options: ['Marco', 'Maria', 'Giulia', 'Luca'],
         correctAnswer: 0,
-        hint: 'Un nome italiano comune'
+        difficultWords: []
     },
     {
         type: 'multipleChoice',
@@ -21,12 +21,13 @@ const questions = [
     },
     {
         type: 'translation',
-        text: 'Traduci dal tedesco all\'italiano:',
+        text: 'Clicca sul bottone "Traduci" per scoprire le traduzioni in tedesco:',
         pairs: [
-            { german: 'Liebe', italian: 'amore', difficulty: true },
-            { german: 'Haus', italian: 'casa', difficulty: false },
-            { german: 'Freund', italian: 'amico', difficulty: false }
-        ]
+            { german: 'Liebe', italian: 'Amore', difficulty: true },
+            { german: 'Haus', italian: 'Casa', difficulty: false },
+            { german: 'Freund', italian: 'Amico', difficulty: false }
+        ],
+        difficultWords: []
     },
     {
         type: 'completion',
@@ -44,16 +45,20 @@ const questions = [
             'Hey!',
             'Yo!'
         ],
-        correctAnswer: 1
+        correctAnswer: 1,
+        difficultWords: []
     },
     {
-        type: 'translation',
-        text: 'Quale parola significa "amore" in italiano?',
-        pairs: [
-            { german: 'Wasser', italian: 'acqua', difficulty: false },
-            { german: 'Liebe', italian: 'amore', difficulty: true },
-            { german: 'Zeit', italian: 'tempo', difficulty: false }
-        ]
+        type: 'multipleChoice',
+        text: 'Quale di queste parole significa "amore" in italiano?',
+        options: [
+            'Acqua',
+            'Amore',
+            'Tempo',
+            'Sole'
+        ],
+        correctAnswer: 1,
+        difficultWords: []
     },
     {
         type: 'multipleChoice',
@@ -69,17 +74,23 @@ const questions = [
     },
     {
         type: 'completion',
-        text: 'Completa: "Ti piace l\'___________?" (il luogo con il Colosseo)',
+        text: 'Completa: "Ti piace ___________?" (la città con il Colosseo)',
         options: ['Roma', 'Milano', 'Venezia'],
-        correctAnswer: 0
+        correctAnswer: 0,
+        difficultWords: []
     }
 ];
 
 let currentQuestion = 0;
 let answers = [];
-let scores = 0;
+let questionAnswered = [];
 
+// Inizializzazione
 document.addEventListener('DOMContentLoaded', function() {
+    // Inizializza array delle risposte
+    answers = new Array(questions.length).fill(null);
+    questionAnswered = new Array(questions.length).fill(false);
+    
     displayQuestion();
     setupEventListeners();
 });
@@ -96,18 +107,20 @@ function displayQuestion() {
     const question = questions[currentQuestion];
     const questionNumber = currentQuestion + 1;
 
-    // Aggiorna la barra di progresso
+    // Aggiorna progresso
     updateProgressBar();
 
-    // Crea l'elemento della domanda
+    // Crea contenitore domanda
     const questionDiv = document.createElement('div');
     questionDiv.className = 'question';
 
+    // Numero domanda
     const numberSpan = document.createElement('span');
     numberSpan.className = 'question-number';
     numberSpan.textContent = `Domanda ${questionNumber} di ${questions.length}`;
     questionDiv.appendChild(numberSpan);
 
+    // Testo domanda
     const questionText = document.createElement('h3');
     questionText.textContent = question.text;
     questionDiv.appendChild(questionText);
@@ -121,9 +134,12 @@ function displayQuestion() {
         renderTranslation(questionDiv, question);
     }
 
-    quizContainer.appendChild(questionDiv);
+    // Aggiungi parole difficili se presenti
+    if (question.difficultWords && question.difficultWords.length > 0 && question.type !== 'translation') {
+        renderDifficultWords(questionDiv, question.difficultWords);
+    }
 
-    // Aggiorna i pulsanti
+    quizContainer.appendChild(questionDiv);
     updateButtons();
 }
 
@@ -132,18 +148,13 @@ function renderCompletion(container, question) {
     input.type = 'text';
     input.className = 'completion-input';
     input.placeholder = 'Scrivi la tua risposta...';
-    input.value = answers[currentQuestion] || '';
+    input.value = answers[currentQuestion] !== null ? answers[currentQuestion] : '';
 
     input.addEventListener('input', (e) => {
         answers[currentQuestion] = e.target.value;
     });
 
     container.appendChild(input);
-
-    // Aggiungi parole difficili se presenti
-    if (question.difficultWords) {
-        renderDifficultWords(container, question.difficultWords);
-    }
 }
 
 function renderMultipleChoice(container, question) {
@@ -159,8 +170,12 @@ function renderMultipleChoice(container, question) {
             btn.classList.add('selected');
         }
 
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+        btn.addEventListener('click', (e) => {
+            // Rimuovi selezione da tutti i bottoni
+            optionsDiv.querySelectorAll('.option-btn').forEach(b => {
+                b.classList.remove('selected');
+            });
+            // Aggiungi selezione al bottone cliccato
             btn.classList.add('selected');
             answers[currentQuestion] = index;
         });
@@ -169,16 +184,16 @@ function renderMultipleChoice(container, question) {
     });
 
     container.appendChild(optionsDiv);
-
-    // Aggiungi parole difficili se presenti
-    if (question.difficultWords) {
-        renderDifficultWords(container, question.difficultWords);
-    }
 }
 
 function renderTranslation(container, question) {
     const section = document.createElement('div');
     section.className = 'translation-section';
+
+    const title = document.createElement('p');
+    title.className = 'translation-title';
+    title.textContent = question.text;
+    section.appendChild(title);
 
     question.pairs.forEach((pair, index) => {
         const item = document.createElement('div');
@@ -187,25 +202,24 @@ function renderTranslation(container, question) {
         const german = document.createElement('span');
         german.className = 'italian-word';
         german.textContent = pair.german;
+        
+        if (pair.difficulty) {
+            german.style.color = '#FF6B9D';
+        }
 
         const btn = document.createElement('button');
         btn.className = 'translate-btn';
-        btn.textContent = 'Traduci';
+        btn.textContent = '🔍 Traduci';
 
         const translation = document.createElement('span');
         translation.className = 'german-translation';
         translation.textContent = pair.italian;
 
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
             translation.classList.toggle('show');
-            btn.textContent = translation.classList.contains('show') ? 'Nascondi' : 'Traduci';
+            btn.textContent = translation.classList.contains('show') ? '🙈 Nascondi' : '🔍 Traduci';
         });
-
-        // Evidenzia le parole difficili
-        if (pair.difficulty) {
-            german.style.fontWeight = 'bold';
-            german.style.color = '#764ba2';
-        }
 
         item.appendChild(german);
         item.appendChild(btn);
@@ -222,9 +236,8 @@ function renderDifficultWords(container, words) {
     section.style.marginTop = '20px';
 
     const title = document.createElement('p');
-    title.style.fontWeight = 'bold';
-    title.style.marginBottom = '15px';
-    title.textContent = '📚 Parole difficili (clicca per la traduzione in tedesco):';
+    title.className = 'translation-title';
+    title.textContent = '📚 Parole difficili - Traduzioni in tedesco';
     section.appendChild(title);
 
     words.forEach((word) => {
@@ -234,19 +247,19 @@ function renderDifficultWords(container, words) {
         const wordSpan = document.createElement('span');
         wordSpan.className = 'italian-word';
         wordSpan.textContent = word;
-        wordSpan.style.cursor = 'pointer';
 
         const btn = document.createElement('button');
         btn.className = 'translate-btn';
-        btn.textContent = 'Traduci';
+        btn.textContent = '🔍 Traduci';
 
         const translation = document.createElement('span');
         translation.className = 'german-translation';
         translation.textContent = getGermanTranslation(word);
 
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
             translation.classList.toggle('show');
-            btn.textContent = translation.classList.contains('show') ? 'Nascondi' : 'Traduci';
+            btn.textContent = translation.classList.contains('show') ? '🙈 Nascondi' : '🔍 Traduci';
         });
 
         item.appendChild(wordSpan);
@@ -263,7 +276,7 @@ function getGermanTranslation(word) {
         'bandiera': 'Flagge',
         'caffè': 'Kaffee',
         'piatto': 'Gericht',
-        'famoso': 'berühmt',
+        'famoso': 'Berühmte',
         'amore': 'Liebe',
         'casa': 'Haus',
         'amico': 'Freund',
@@ -271,12 +284,13 @@ function getGermanTranslation(word) {
         'tempo': 'Zeit'
     };
 
-    return translations[word.toLowerCase()] || 'Traduzione non disponibile';
+    return translations[word.toLowerCase()] || '❓ Non trovata';
 }
 
 function updateProgressBar() {
     const progress = ((currentQuestion + 1) / questions.length) * 100;
     document.getElementById('progressFill').style.width = progress + '%';
+    document.getElementById('progressText').textContent = `Domanda ${currentQuestion + 1} di ${questions.length}`;
 }
 
 function updateButtons() {
@@ -286,7 +300,7 @@ function updateButtons() {
     prevBtn.style.display = currentQuestion > 0 ? 'block' : 'none';
 
     if (currentQuestion === questions.length - 1) {
-        nextBtn.textContent = 'Completa il Test ✓';
+        nextBtn.textContent = '✓ Completa il Test';
     } else {
         nextBtn.textContent = 'Avanti →';
     }
@@ -313,27 +327,36 @@ function showResults() {
     let score = 0;
     questions.forEach((question, index) => {
         if (question.type === 'completion' || question.type === 'multipleChoice') {
-            if (answers[index] === question.correctAnswer || 
-                (typeof question.correctAnswer === 'object' && question.correctAnswer.includes(answers[index]))) {
+            if (answers[index] === question.correctAnswer) {
                 score++;
             }
         }
     });
 
     const percentage = Math.round((score / questions.length) * 100);
+    
+    let message = '';
+    let emoji = '';
+    
+    if (percentage >= 80) {
+        message = '🌟 Ottimo! Sei pronto per il tuo love trip!';
+        emoji = '❤️';
+    } else if (percentage >= 60) {
+        message = '😊 Bene! Continua a praticare!';
+        emoji = '💪';
+    } else {
+        message = '📚 Continua a imparare e riprova!';
+        emoji = '🎓';
+    }
 
     const resultDetails = document.getElementById('resultDetails');
     resultDetails.innerHTML = `
-        <p>Hai ottenuto <strong>${score} su ${questions.length}</strong> risposte corrette!</p>
-        <p>Percentuale: <strong>${percentage}%</strong></p>
-        <p style="margin-top: 20px; font-size: 1.1em;">
-            ${percentage >= 80 ? '🌟 Ottimo! Sei pronto per il tuo love trip!' :
-              percentage >= 60 ? '😊 Bene! Continua a praticare!' :
-              '📚 Continua a imparare e riprova!'}
-        </p>
+        <p style="font-size: 3em; margin-bottom: 20px;">${emoji}</p>
+        <p>Hai ottenuto <strong>${score} su ${questions.length}</strong> risposte corrette! 🎯</p>
+        <p style="font-size: 1.5em; margin: 20px 0; color: #FF6B9D;"><strong>${percentage}%</strong></p>
+        <p style="margin-top: 25px; font-size: 1.15em;">${message}</p>
     `;
 
-    document.getElementById('results').classList.remove('results-hidden');
-    document.getElementById('quiz-container').style.display = 'none';
-    document.querySelector('.button-group').style.display = 'none';
+    document.getElementById('results-modal').classList.remove('hidden');
+    document.querySelector('.container').style.display = 'none';
 }
